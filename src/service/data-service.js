@@ -44,7 +44,7 @@ async function transformTemplateToJSON() {
    });
 
    stationsArray = mapEndpointDataToJSON(result);
-   console.log(stationsArray);
+   // console.log(stationsArray);
 }
 
 function mapEndpointDataToJSON(data) {
@@ -66,7 +66,11 @@ function mapEndpointDataToJSON(data) {
 }
 
 function fetchStationByName(name) {
-   return stationsArray.find((station) => station.name === name);
+   name = name.replace(/"/g, '');
+
+   let station = stationsArray.find((station) => station.stationName === name);
+
+   return station;
 }
 
 export { transformTemplateToJSON, fetchStationByName };
