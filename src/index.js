@@ -4,16 +4,19 @@ import { WebSocketServer } from 'ws';
 import { transformTemplateToJSON, fetchStationByName } from './service/data-service.js';
 
 const app = express();
-
 app.use(cors());
 
+const interval = 30000;
+
 transformTemplateToJSON();
+setInterval(transformTemplateToJSON, interval);
 
 app.listen(process.env.PORT, () => {
    console.log(`Example app listening on port ${process.env.PORT}`);
 });
 
-const wss = new WebSocketServer({ port: 8080 });
+//TODO hide port
+const wss = new WebSocketServer({ port: process.env.WS_PORT });
 
 wss.on('connection', (ws) => {
    ws.on('message', (message) => {

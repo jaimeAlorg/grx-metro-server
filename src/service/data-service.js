@@ -13,6 +13,7 @@ async function fetchTemplateFromEndpoint() {
          'Content-Type': 'application/x-yaml',
          Host: 'metropolitanogranada.es',
       },
+      proxy: false,
    };
 
    try {
@@ -43,8 +44,7 @@ async function transformTemplateToJSON() {
       }
    });
 
-   stationsArray = mapEndpointDataToJSON(result);
-   // console.log(stationsArray);
+   stationsArray.splice(0, stationsArray.length, ...mapEndpointDataToJSON(result));
 }
 
 function mapEndpointDataToJSON(data) {
@@ -72,5 +72,7 @@ function fetchStationByName(name) {
 
    return station;
 }
+
+//TODO: Calculate times
 
 export { transformTemplateToJSON, fetchStationByName };
