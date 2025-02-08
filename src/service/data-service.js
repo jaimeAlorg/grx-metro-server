@@ -45,6 +45,7 @@ async function transformTemplateToJSON() {
    });
 
    stationsArray.splice(0, stationsArray.length, ...mapEndpointDataToJSON(result));
+   console.log(stationsArray);
 }
 
 function mapEndpointDataToJSON(data) {
@@ -73,6 +74,25 @@ function fetchStationByName(name) {
    return station;
 }
 
+function buildArrivalTimesFromStation(station) {
+   const stationData = fetchStationByName(station);
+
+   stationData.arrivalTimeAlbolote1 = getTrainArrivalTime(stationData.timeAlbolote1);
+   stationData.arrivalTimeAlbolote2 = getTrainArrivalTime(stationData.timeAlbolote2);
+   stationData.arrivalTimeArmilla1 = getTrainArrivalTime(stationData.timeArmilla1);
+   stationData.arrivalTimeArmilla2 = getTrainArrivalTime(stationData.timeArmilla2);
+}
+
+function getTrainArrivalTime(minutesUntilArrival) {
+   if (minutesUntilArrival === '-') {
+      return '-:-';
+   }
+
+   const now = new Date();
+   now.setMinutes(now.getMinutes() + minutesUntilArrival);
+   return now.toTimeString().split(' ').slice(0, 5);
+}
+
 //TODO: Calculate times
 
-export { transformTemplateToJSON, fetchStationByName };
+export { transformTemplateToJSON, fetchStationByName, buildArrivalTimesFromStation };

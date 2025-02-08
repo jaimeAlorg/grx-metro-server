@@ -1,7 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import { WebSocketServer } from 'ws';
-import { transformTemplateToJSON, fetchStationByName } from './service/data-service.js';
+import {
+   transformTemplateToJSON,
+   fetchStationByName,
+   buildArrivalTimesFromStation,
+} from './service/data-service.js';
 
 const app = express();
 app.use(cors());
@@ -22,6 +26,7 @@ wss.on('connection', (ws) => {
    ws.on('message', (message) => {
       const stationName = message.toString();
       const stationData = fetchStationByName(stationName);
+      buildArrivalTimesFromStation(stationName);
 
       if (stationData) {
          ws.send(JSON.stringify(stationData));
