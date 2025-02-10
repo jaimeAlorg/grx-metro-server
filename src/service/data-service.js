@@ -88,11 +88,19 @@ function getTrainArrivalTime(minutesUntilArrival) {
       return '-:-';
    }
 
-   const now = new Date();
-   now.setMinutes(now.getMinutes() + minutesUntilArrival);
-   return now.toTimeString().split(' ').slice(0, 5);
-}
+   const minutes = parseInt(minutesUntilArrival.replace("'", ''), 10);
 
-//TODO: Calculate times
+   if (isNaN(minutes)) {
+      return '-:-';
+   }
+
+   const now = new Date();
+   now.setMinutes(now.getMinutes() + minutes);
+
+   const hours = now.getHours().toString().padStart(2, '0');
+   const minutesFormatted = now.getMinutes().toString().padStart(2, '0');
+
+   return `${hours}:${minutesFormatted}`;
+}
 
 export { transformTemplateToJSON, fetchStationByName, buildArrivalTimesFromStation };

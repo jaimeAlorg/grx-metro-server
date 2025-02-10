@@ -10,7 +10,7 @@ import {
 const app = express();
 app.use(cors());
 
-const interval = 30000;
+const interval = 60001;
 
 transformTemplateToJSON();
 setInterval(transformTemplateToJSON, interval);
