@@ -5,6 +5,7 @@ import {
    transformTemplateToJSON,
    fetchStationByName,
    buildArrivalTimesFromStation,
+   findTrainCurrentLocation,
 } from './service/data-service.js';
 
 const app = express();
@@ -23,13 +24,14 @@ app.listen(process.env.PORT, () => {
 
 wss.on('connection', (ws) => {
    ws.on('message', (message) => {
-      const stationName = message.toString();
+      const stationName = message.toString('utf8').trim().replace(/"/g, '');
       const stationData = fetchStationByName(stationName);
 
       clients.set(ws, stationName);
 
       if (stationData) {
          buildArrivalTimesFromStation(stationName);
+         findTrainCurrentLocation(stationName);
          ws.send(JSON.stringify(stationData));
       }
    });
@@ -55,6 +57,7 @@ function sendUpdatedTimes() {
 
       if (stationData) {
          buildArrivalTimesFromStation(stationName);
+         findTrainCurrentLocation(stationName);
          ws.send(JSON.stringify(stationData));
       }
    });

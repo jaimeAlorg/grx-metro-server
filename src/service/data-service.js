@@ -88,7 +88,7 @@ function getTrainArrivalTime(minutesUntilArrival) {
       return '-:-';
    }
 
-   const minutes = parseInt(minutesUntilArrival.replace("'", ''), 10);
+   const minutes = parseMinutes(minutesUntilArrival);
 
    if (isNaN(minutes)) {
       return '-:-';
@@ -103,4 +103,118 @@ function getTrainArrivalTime(minutesUntilArrival) {
    return `${hours}:${minutesFormatted}`;
 }
 
-export { transformTemplateToJSON, fetchStationByName, buildArrivalTimesFromStation };
+function findTrainCurrentLocation(stationName) {
+   const waitingIndex = stationsArray.findIndex((s) => s.stationName === stationName);
+   let trainStation = stationsArray[waitingIndex];
+
+   if (
+      waitingIndex === -1 ||
+      (trainStation.timeAlbolote1 === '-' && waitingIndex !== 0) ||
+      (trainStation.timeArmilla1 === '-' && waitingIndex !== stationsArray.length - 1)
+   ) {
+      trainStation.currentStationToAlbolote = '-';
+      trainStation.currentStationToArmilla = '-';
+      return;
+   }
+
+   if (waitingIndex === 0) {
+      //TODO: Tackle this case
+      trainStation.currentStationToAlbolote = '---';
+      trainStation.currentStationToArmilla =
+         findTrainCurrentLocationToArmillaFromAlbolote(trainStation);
+      return;
+   }
+
+   if (waitingIndex === stationsArray.length - 1) {
+      //TODO: Tackle this case
+      trainStation.currentStationToArmilla = '---';
+      trainStation.currentStationToAlbolote =
+         findTrainCurrentLocationToAlboloteFromArmilla(trainStation);
+      return;
+   }
+
+   trainStation.currentStationToAlbolote = findTrainCurrentLocationToAlbolote(
+      waitingIndex,
+      trainStation
+   );
+   trainStation.currentStationToArmilla = findTrainCurrentLocationToArmilla(
+      waitingIndex,
+      trainStation
+   );
+}
+
+function findTrainCurrentLocationToAlbolote(waitingIndex, trainStation) {
+   let trainStationTime = parseInt(trainStation.timeAlbolote1.replace("'", ''), 10);
+
+   for (let i = waitingIndex + 1; i < stationsArray.length; i++) {
+      let timeValue = parseInt(stationsArray[i].timeAlbolote1.replace("'", ''), 10);
+
+      if (timeValue < trainStationTime) {
+         trainStation = stationsArray[i];
+         trainStationTime = timeValue;
+      } else {
+         break;
+      }
+   }
+
+   return trainStation.stationName;
+}
+
+function findTrainCurrentLocationToArmilla(waitingIndex, trainStation) {
+   let trainStationTime = parseInt(trainStation.timeArmilla1.replace("'", ''), 10);
+
+   for (let i = waitingIndex - 1; i >= 0; i--) {
+      let timeValue = parseInt(stationsArray[i].timeArmilla1.replace("'", ''), 10);
+
+      if (timeValue < trainStationTime) {
+         trainStation = stationsArray[i];
+         trainStationTime = timeValue;
+      } else {
+         break;
+      }
+   }
+   return trainStation.stationName;
+}
+
+function findTrainCurrentLocationToArmillaFromAlbolote(trainStation) {
+   let trainStationTime = parseInt(trainStation.timeArmilla1.replace("'", ''), 10);
+
+   for (let i = 1; i < stationsArray.length; i++) {
+      let timeValue = parseInt(stationsArray[i].timeAlbolote1.replace("'", ''), 10);
+      if (timeValue < trainStationTime) {
+         trainStation = stationsArray[i];
+         trainStationTime = timeValue;
+      } else {
+         break;
+      }
+   }
+
+   return trainStation.stationName;
+}
+
+function findTrainCurrentLocationToAlboloteFromArmilla(trainStation) {
+   let trainStationTime = parseInt(trainStation.timeAlbolote1.replace("'", ''), 10);
+
+   for (let i = stationsArray.length - 2; i > 0; i--) {
+      let timeValue = parseInt(stationsArray[i].timeArmilla1.replace("'", ''), 10);
+      if (timeValue < trainStationTime) {
+         trainStation = stationsArray[i];
+         trainStationTime = timeValue;
+      } else {
+         break;
+      }
+   }
+
+   return trainStation.stationName;
+}
+
+function parseMinutes(minutes) {
+   return parseInt(minutes.replace("'", ''), 10);
+}
+
+export {
+   transformTemplateToJSON,
+   fetchStationByName,
+   buildArrivalTimesFromStation,
+   findTrainCurrentLocation,
+};
