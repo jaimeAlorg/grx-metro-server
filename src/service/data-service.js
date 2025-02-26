@@ -1,5 +1,8 @@
 import * as cheerio from 'cheerio';
 import axios from 'axios';
+import axiosRetry from 'axios-retry';
+
+axiosRetry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
 
 let stationsArray = [];
 
@@ -13,6 +16,7 @@ async function fetchTemplateFromEndpoint() {
          'Content-Type': 'application/x-yaml',
          Host: 'metropolitanogranada.es',
       },
+      timeout: 10000,
       proxy: false,
    };
 
@@ -44,7 +48,9 @@ async function transformTemplateToJSON() {
       }
    });
 
-   stationsArray.splice(0, stationsArray.length, ...mapEndpointDataToJSON(result));
+   const newStationsArray = mapEndpointDataToJSON(result);
+   stationsArray.length = 0;
+   stationsArray.push(...newStationsArray);
    console.log(stationsArray);
 }
 

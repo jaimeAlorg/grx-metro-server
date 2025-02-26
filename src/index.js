@@ -32,13 +32,23 @@ wss.on('connection', (ws) => {
       if (stationData) {
          buildArrivalTimesFromStation(stationName);
          findTrainCurrentLocation(stationName);
-         ws.send(JSON.stringify(stationData));
+
+         try {
+            ws.send(JSON.stringify(stationData));
+         } catch (error) {
+            console.error('Error sending data to client:', error);
+         }
       }
    });
 
    ws.on('close', () => {
       clients.delete(ws);
       console.log('Client disconnected');
+   });
+
+   ws.on('error', () => {
+      clients.delete(ws);
+      console.log('Client disconnected due to an error');
    });
 });
 
