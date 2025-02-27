@@ -12,15 +12,16 @@ const app = express();
 app.use(cors());
 
 const interval = 60001;
-const wss = new WebSocketServer({ port: process.env.WS_PORT });
 const clients = new Map();
 
 updateAndSendTimes();
 setInterval(executeUpdateAndSend, interval);
 
-app.listen(process.env.PORT, () => {
+const server = app.listen(process.env.PORT, () => {
    console.log(`Example app listening on port ${process.env.PORT}`);
 });
+
+const wss = new WebSocketServer({ server });
 
 wss.on('connection', (ws) => {
    ws.on('message', (message) => {
